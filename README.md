@@ -1,5 +1,7 @@
 # Portofolio-builder
+
 Project meant to scrape the wep in search of stocks to build an efficient portofolio
+
 Files:
 Untitled1.py: Extract the first number of most active stocks on Yahoo Finnance (To do: Make the number of stocks  dynamic)
 Untitled2.py: Extract the values in between two manually selected dates (To do: Make the date selection dynamic)
