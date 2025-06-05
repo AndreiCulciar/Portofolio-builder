@@ -8,8 +8,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+import os
 df = pd.read_csv("shared_df.csv")
-inputs=0.002
+with open(f"{os.getcwd()}/performanta.pkl", "rb") as f:
+    inputs= pickle.load(f)
+print(inputs)
 global q, a
 a=[]
 # In[2]:
@@ -68,7 +71,7 @@ def find_non_numeric_locations(df):
 
 # Call the function and print the result
 rows, cols = find_non_numeric_locations(merged_df)
-print(merged_df)
+
 
 # In[9]:
 
@@ -126,8 +129,8 @@ q = Frontiera_Eficienta(merged_df, inputs)
 
 q = q[:-2]
 
-with open("C:/Users/andre/Proiect stocuri/q.pkl", "wb") as f:
+with open(f"{os.getcwd()}/q.pkl", "wb") as f:
     pickle.dump(q, f)
-with open("C:/Users/andre/Proiect stocuri/a.pkl", "wb") as f:
+with open(f"{os.getcwd()}/a.pkl", "wb") as f:
     pickle.dump(a, f)
 

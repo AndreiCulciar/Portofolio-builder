@@ -9,13 +9,16 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import re
 import runpy
-
+import pickle
+import os
+with open(f"{os.getcwd()}/number_of_stocks.pkl", "rb") as f:
+    number_of_stocks= pickle.load(f)
 
 # In[33]:
 
 
 def Lista_stocuri():
-    url = 'https://finance.yahoo.com/markets/stocks/most-active/?start=0&count=25'
+    url = f'https://finance.yahoo.com/markets/stocks/most-active/?start=0&count={number_of_stocks}'
     print("Generated URL:", url)
 # Define the URL and headers
     headers = {"User-Agent": "Mozilla/5.0"}  # Helps bypass bot detection

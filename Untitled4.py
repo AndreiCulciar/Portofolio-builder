@@ -5,7 +5,7 @@
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from tkinter import Tk, Button, Text, END, ttk
+from tkinter import Tk, Button, Text, END, ttk, Frame
 from matplotlib.figure import Figure
 import papermill as pm
 import nbformat
@@ -37,9 +37,9 @@ toolbar = None
 def printSomething():
     global canvas, text_box, toolbar, positions_output,q,a
     
-    with open("C:/Users/andre/Proiect stocuri/q.pkl", "rb") as f:
+    with open(f"{os.getcwd()}/q.pkl", "rb") as f:
         q = pickle.load(f)
-    with open("C:/Users/andre/Proiect stocuri/a.pkl", "rb") as f:
+    with open(f"{os.getcwd()}/a.pkl", "rb") as f:
         a = pickle.load(f)
 
     try:
@@ -81,17 +81,15 @@ def printSomething():
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas.get_tk_widget().pack()
-
-    toolbar = NavigationToolbar2Tk(canvas, root)
-    toolbar.update()
+    
+    loading_label.config(text="🔄 Building portfolio")
+    root.update_idletasks()
+    result = runpy.run_path(f"{os.getcwd()}/Untitled3.py")
+    loading_label.config(text="✅ Portfolio built")
+    
     
 def printPositions():
     global canvas, text_box, toolbar, positions_output,q,a
-    with open("C:/Users/andre/Proiect stocuri/q.pkl", "rb") as f:
-        q = pickle.load(f)
-    with open("C:/Users/andre/Proiect stocuri/a.pkl", "rb") as f:
-        a = pickle.load(f)
-
     try:
         if canvas:
             canvas.get_tk_widget().destroy()
@@ -113,6 +111,10 @@ def printPositions():
     text_box.delete('1.0', END) 
     for line in positions_output:
         text_box.insert(END, line + "\n")
+    with open(f"{os.getcwd()}/q.pkl", "rb") as f:
+        q = pickle.load(f)
+    with open(f"{os.getcwd()}/a.pkl", "rb") as f:
+        a = pickle.load(f)
 
 def run_notebook(notebook_path):
     print(f"Running {notebook_path}\n")
@@ -127,26 +129,39 @@ def run_notebook(notebook_path):
         for output in cell.get('outputs', []):
             if output.output_type == 'stream':
                 print(output.text)
+    loading_label.config(text="🔄 Building portfolio")
+    root.update_idletasks()
+    result = runpy.run_path(f"{os.getcwd()}/Untitled3.py")
+    loading_label.config(text="✅ Portfolio built")
 
 def runs():
     loading_label.config(text="🔄 Extracting Stocks")
     root.update_idletasks()
-    result = runpy.run_path("C:/Users/andre/Proiect stocuri/Untitled1.py")
+    result = runpy.run_path(f"{os.getcwd()}/Untitled1.py")
     loading_label.config(text="✅ Done extracting Stocks")
 
     loading_label.config(text="🔄 Checking stock values")
     root.update_idletasks()
-    result = runpy.run_path("C:/Users/andre/Proiect stocuri/Untitled2.py")
+    result = runpy.run_path(f"{os.getcwd()}/Untitled2.py")
     loading_label.config(text="✅ Checked stock values")
 
-    loading_label.config(text="🔄 Building portfolio")
-    root.update_idletasks()
-    result = runpy.run_path("C:/Users/andre/Proiect stocuri/Untitled3.py")
-    loading_label.config(text="✅ Portfolio built")
+    stock_label.config(text="Number of Stocks")
+    perf_label.config(text="Performance")
+    
  
+def get_input():
+    number_of_stocks = int(entry_numberofstocks.get())
+    performanta=int(entry_performanta.get())/256/100
+    with open(f"{os.getcwd()}/number_of_stocks.pkl", "wb") as f:
+        pickle.dump(number_of_stocks, f)
+    stock_label.config(text="✅ Number of Stocks")
+    with open(f"{os.getcwd()}/performanta.pkl", "wb") as f:
+        pickle.dump(performanta, f)
+    perf_label.config(text="✅ Performance")
+    
     
 def start_tasks():
-    csv_files = glob.glob(os.path.join("C:/Users/andre/Proiect stocuri", "*.csv"))
+    csv_files = glob.glob(os.path.join(os.path.dirname(os.path.join(os.getcwd(), "q.pkl")), "*.csv"))
     for file in csv_files:
         os.remove(file)
     threading.Thread(target=runs).start()
@@ -155,16 +170,39 @@ root = Tk()
 root.title("Portfolio Pie Chart")
 root.state("zoomed")
 
-button = Button(root, command=printSomething, text="Show Portfolio Pie Chart")
-button.pack()
+# Left
+left_frame = Frame(root)
+left_frame.pack(side='left', anchor='n', padx=20, pady=20)
 
-button1 = Button(root, command=printPositions, text="Show Positions")
-button1.pack()
+stock_label = ttk.Label(left_frame, text="Number of Stocks:", font=('Arial', 12))
+stock_label.pack(anchor='w', pady=5)
+entry_numberofstocks = ttk.Entry(left_frame,width=10)
+entry_numberofstocks.pack(anchor='w', pady=5)
 
-loading_label = ttk.Label(root, text="Click 'Run' to start", font=('Arial', 12))
-loading_label.pack(pady=20)
-button2 = Button(root, command=start_tasks, text="Extractions")
-button2.pack()
+perf_label = ttk.Label(left_frame, text="Performance:", font=('Arial', 12))
+perf_label.pack(anchor='w', pady=5)
+entry_performanta = ttk.Entry(left_frame,width=10)
+entry_performanta.pack(anchor='w', pady=5)
+
+button3 = Button(left_frame, text="Submit", command=lambda: print("Submitted"))
+button3.pack(anchor='w', pady=10)
+
+# Top
+top_frame = Frame(root)
+top_frame.pack(side='top', pady=10)
+
+button = Button(top_frame, command=lambda: print("Show Chart"), text="Show Portfolio Pie Chart")
+button.pack(pady=5)
+
+button1 = Button(top_frame, command=lambda: print("Show Positions"), text="Show Positions")
+button1.pack(pady=5)
+
+loading_label = ttk.Label(top_frame, text="Click 'Run' to start", font=('Arial', 12))
+loading_label.pack(pady=5)
+
+button2 = Button(top_frame, command=lambda: print("Run Extractions"), text="Extractions")
+button2.pack(pady=5)
+
 
 root.mainloop()
 

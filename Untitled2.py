@@ -7,6 +7,7 @@
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
+import os
 df = pd.read_csv("shared_df.csv")
 
 
@@ -56,7 +57,7 @@ def scraper(STOCK):
         df = df.iloc[:, :2]
         
         # Optionally, save to CSV
-        df.to_csv(f"C:/Users/andre/Proiect stocuri/{STOCK}.csv", index=False)
+        df.to_csv(f"{os.getcwd()}/{STOCK}.csv", index=False)
     else:
         print(f"No valid data found for {STOCK}. Skipping.")
 
