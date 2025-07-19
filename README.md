@@ -26,8 +26,11 @@ To do:
 Updated branch
 
 New features:
+
       1. Manual input of the prefered number of stocks to be extracted, the expected performance and the desired ammount to invest
+      
       2. Ability to determine the performance of the portofolio
+      
 Untitled1.py: Extract the first number 100 most active stocks on Yahoo Finnance
 
 Untitled2.py: Extract the values in between two pre-selected dates
