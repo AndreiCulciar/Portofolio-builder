@@ -12,7 +12,7 @@ import os
 df = pd.read_csv("shared_df.csv")
 with open(f"{os.getcwd()}/performanta.pkl", "rb") as f:
     inputs= pickle.load(f)
-print(inputs)
+    
 global q, a
 a=[]
 # In[2]:
@@ -21,12 +21,10 @@ a=[]
 def pregatire(a):
     for name in a:
         globals()[name] = pd.read_csv(f"C:/Users/andre/Proiect stocuri/{name}.csv")
-        globals()[name].rename(columns={"Open": f"{name}"}, inplace=True)
+        globals()[name].rename(columns={"Close Price": f"{name}"}, inplace=True)
     dataframes = [globals()[name] for name in a]
     merged = pd.concat(dataframes, axis=1)
-    merged.drop(columns=['Date'], inplace=True)
-    merged_df=merged.iloc[::-1].reset_index(drop=True)
-    return merged_df
+    return merged
 
 
 # In[5]:
@@ -40,8 +38,10 @@ merged_df=pregatire(a)
 merged_df = merged_df.replace(',', '', regex=True)
 merged_df = merged_df.apply(pd.to_numeric, errors='coerce')
 merged_df = merged_df.dropna(thresh=len(merged_df), axis=1)
+# merged_df = merged_df.iloc[::-1].reset_index(drop=True)
 
 
+merged_df.iloc[[-1]].to_csv("valori_test.csv", index=False)
 # In[7]:
 
 
@@ -73,6 +73,7 @@ def find_non_numeric_locations(df):
 rows, cols = find_non_numeric_locations(merged_df)
 
 
+
 # In[9]:
 
 
@@ -80,27 +81,34 @@ def Frontiera_Eficienta(merged_df,a):
     
     #Standardizare
     ln_merged_df=np.log(merged_df)
+   
     
     #Medii
     Medii_EI = pd.DataFrame()
     Medii_EI=ln_merged_df.mean()
     
+    
     #Abaterii
     Sigma_i = pd.DataFrame()
     Sigma_i=ln_merged_df.std()
     
+    
     #Sigma (tabel var cov)
     Sigma=ln_merged_df.cov()
+    
     
     #Omega
     e=[1] * len(merged_df.columns)
     R=Medii_EI
+ 
     Omega=2*Sigma
     Omega['R']=R
     Omega['e']=e
-    Omega.loc['R', :] = Omega['R']
-    Omega.loc['e', :] = Omega['e']
+
+    Omega.loc['R'] = Omega['R']
+    Omega.loc['e'] = Omega['e']
     Omega.fillna(0, inplace=True)
+    
     
     #OMEGA^(-1)
     Omega_1=np.linalg.inv(Omega)

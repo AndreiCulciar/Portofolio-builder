@@ -1,71 +1,50 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[40]:
+# In[3]:
 
 
 import requests
+import csv
 import pandas as pd
-from bs4 import BeautifulSoup
+import pickle
 import os
+with open(f"{os.getcwd()}/number_of_stocks.pkl", "rb") as f:
+    number_of_stocks= pickle.load(f)
 df = pd.read_csv("shared_df.csv")
 
-
-# In[48]:
-
-
-def scraper(STOCK):
+first_price=pd.DataFrame()
+for i in range(number_of_stocks):
+    ticker = df.iloc[i, 0].strip()
+    url = (
+        f"https://query2.finance.yahoo.com/v8/finance/chart/{ticker}"
+        "?period1=1661261400&period2=1740099783&interval=1d"
+    )
+    resp = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}).json()
     
-    # Define URL of the Webpage
-    url = f'https://finance.yahoo.com/quote/{STOCK}/history/?period1=1661261400&period2=1740099783&filter=history'
-    
-    
-    # Define the URL and headers to avoid bot detection
-    headers = {"User-Agent": "Mozilla/5.0"}
-    
-    # Fetch the webpage content
-    response = requests.get(url, headers=headers)
-    if response.status_code != 200:
-        print(f"Failed to retrieve page, status code: {response.status_code}")
-        return
-    
-    # Parse the HTML with BeautifulSoup
-    soup = BeautifulSoup(response.text, "html.parser")
-    
-    # Find the table (Yahoo Finance uses tables for historical data)
-    table = soup.find("table")  # First table on the page
-    
-    # Extract headers
-    headers = [th.text.strip() for th in table.find("thead").find_all("th")]
-    
-    # Extract rows
-    rows = []
-    for tr in table.find("tbody").find_all("tr"):
-        cols = [td.text.strip() for td in tr.find_all("td")]
-        if len(cols) == len(headers):  # Ensure it matches the number of columns in headers
-            rows.append(cols)
-    
-    # Ensure DataFrame is created only if rows exist
-    if rows:
-        # Convert to DataFrame
-        df = pd.DataFrame(rows, columns=headers)
-        
-        # Clean up and drop rows with missing values
-        df.dropna(inplace=True)
-        
-        # Keep only the first two columns (Date and Open)
-        df = df.iloc[:, :2]
-        
-        # Optionally, save to CSV
-        df.to_csv(f"{os.getcwd()}/{STOCK}.csv", index=False)
-    else:
-        print(f"No valid data found for {STOCK}. Skipping.")
+    # Extract the first closing price and check for a successful response
+    if (
+        not resp.get("chart") 
+        or not resp["chart"].get("result") 
+        or resp["chart"]["result"] is None
+    ):
+        print(f"⚠️ Skipping {ticker} — no valid chart data.")
+        continue  # Skip this ticker and move to the next one
+    try:
+        close_prices = resp["chart"]["result"][0]["indicators"]["quote"][0]["close"]
+    except (IndexError, KeyError, TypeError) as e:
+        continue
+    first_price[f"{ticker}"] = close_prices
 
 
-# In[49]:
+df = pd.DataFrame(list(first_price.columns), columns=["Symbol"])
+df.to_csv("shared_df.csv", index=False)
 
-
-for i in range(len(df)):
-    Stock = df.iloc[i, 0].replace(" ", "")
-    scraper(Stock)
-
+for ticker, prices in first_price.items():
+    filename = f"{ticker}.csv"
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Close Price"])
+        # Write each price on its own row
+        for price in prices:
+            writer.writerow([price])

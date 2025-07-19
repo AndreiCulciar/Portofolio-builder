@@ -18,7 +18,7 @@ with open(f"{os.getcwd()}/number_of_stocks.pkl", "rb") as f:
 
 
 def Lista_stocuri():
-    url = f'https://finance.yahoo.com/markets/stocks/most-active/?start=0&count={number_of_stocks}'
+    url = f'https://finance.yahoo.com/markets/stocks/most-active/?start=0&count=100'
     print("Generated URL:", url)
 # Define the URL and headers
     headers = {"User-Agent": "Mozilla/5.0"}  # Helps bypass bot detection
