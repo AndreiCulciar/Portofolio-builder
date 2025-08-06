@@ -38,7 +38,7 @@ merged_df=pregatire(a)
 merged_df = merged_df.replace(',', '', regex=True)
 merged_df = merged_df.apply(pd.to_numeric, errors='coerce')
 merged_df = merged_df.dropna(thresh=len(merged_df), axis=1)
-# merged_df = merged_df.iloc[::-1].reset_index(drop=True)
+
 
 
 merged_df.iloc[[-1]].to_csv("valori_test.csv", index=False)
@@ -130,8 +130,14 @@ def Frontiera_Eficienta(merged_df,a):
     X=np.dot(Omega_1, K)
     return X
 
+    # ``````````````````````````````
+    X_trXSigma= np.dot(Sigma,X[:-2])
+    var_pf=np.dot(X[:-2],X_trXSigma)
+    sigma_pf=np.sqrt(var_pf)
+    
 
 # In[10]:
+Frontiera_Eficienta(merged_df, inputs)
 q = Frontiera_Eficienta(merged_df, inputs)
 
 
@@ -141,4 +147,3 @@ with open(f"{os.getcwd()}/q.pkl", "wb") as f:
     pickle.dump(q, f)
 with open(f"{os.getcwd()}/a.pkl", "wb") as f:
     pickle.dump(a, f)
-
