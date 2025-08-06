@@ -43,7 +43,7 @@ Untitled5.py: Calculate the performance of the portofolio relative to the presen
 
 Untitled5.ipynb: Michelenious matters, most importantly it turns Untitled4.py into Untitled4.exe, after eventual modifications on the Untitled4.py file
 
-Overall to do: It takes 2-3 
+Overall to do: It takes 2-3 clicks to update the piechart/Alocations text box (SOLVED)
 
 
 Optimisation score: LMAO
