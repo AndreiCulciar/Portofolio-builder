@@ -56,3 +56,4 @@ df=Lista_stocuri()
 
 df.to_csv("shared_df.csv", index=False)
 
+
