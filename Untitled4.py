@@ -36,8 +36,15 @@ positions_output = []
 toolbar = None 
 
 def printSomething():
-    with open(f"{os.getcwd()}/b.pkl", "rb") as f:
-        b = pickle.load(f)
+
+    # ``````````````````````````````````````````````````````````
+    loading_label.config(text="🔄 Building portfolio")
+    root.update_idletasks()
+    root.update()
+    result = runpy.run_path(f"{os.getcwd()}/Untitled3.py")
+    loading_label.config(text="✅ Portfolio built")
+    # ``````````````````````````````````````````````````````````
+    
     global canvas, text_box, toolbar, positions_output,q,a
     
     with open(f"{os.getcwd()}/q.pkl", "rb") as f:
@@ -63,7 +70,10 @@ def printSomething():
         data.append({
         "Allocation (%)": allocation})
         # ``````````````
-    pd.DataFrame(data).to_csv("portfolio_allocations.csv", index=False)   
+    pd.DataFrame(data).to_csv("portfolio_allocations.csv", index=False)
+    runpy.run_path(f"{os.getcwd()}/Untitled5.py")
+    with open(f"{os.getcwd()}/b.pkl", "rb") as f:
+        b = pickle.load(f)
     labels = []
     values = []
     colors = []
@@ -79,7 +89,8 @@ def printSomething():
     
     fig = Figure(figsize=(8,8))
     ax = fig.add_subplot(111)
-    fig.text(0.5, 0.05, f"Performanta portofoliului: {int(b[0]) - 100}", 
+    b_value = int(b.iloc[0]) if isinstance(b, pd.Series) else int(b[0])
+    fig.text(0.5, 0.05, f"Performanta portofoliului: {b_value - 100}", 
          ha='center', fontsize=10, color='black')
     ax.pie(values, labels=labels, autopct='%1.1f%%', startangle=140, colors=colors)
     ax.set_title('Portfolio Allocation: Long vs Short Positions')
@@ -89,19 +100,20 @@ def printSomething():
     canvas = FigureCanvasTkAgg(fig, master=root)
     canvas.draw()
     canvas.get_tk_widget().pack()
-
     
-    # ``````````````````````````````````````````````````````````
+def printPositions():
+    
     loading_label.config(text="🔄 Building portfolio")
     root.update_idletasks()
     root.update()
     result = runpy.run_path(f"{os.getcwd()}/Untitled3.py")
     loading_label.config(text="✅ Portfolio built")
-    # ``````````````````````````````````````````````````````````
-    runpy.run_path(f"{os.getcwd()}/Untitled5.py")
     
-def printPositions():
     global canvas, text_box, toolbar, positions_output,q,a
+    with open(f"{os.getcwd()}/q.pkl", "rb") as f:
+        q = pickle.load(f)
+    with open(f"{os.getcwd()}/a.pkl", "rb") as f:
+        a = pickle.load(f)
     if canvas:
         canvas.get_tk_widget().destroy()
     if text_box:
@@ -129,35 +141,6 @@ def printPositions():
     for line in positions_output:
         text_box.insert(END, line + "\n")
         
-    with open(f"{os.getcwd()}/q.pkl", "rb") as f:
-        q = pickle.load(f)
-    with open(f"{os.getcwd()}/a.pkl", "rb") as f:
-        a = pickle.load(f)
-    # ````````````````````````````````
-    loading_label.config(text="🔄 Building portfolio")
-    root.update_idletasks()
-    root.update()
-    result = runpy.run_path(f"{os.getcwd()}/Untitled3.py")
-    loading_label.config(text="✅ Portfolio built")
-    # ````````````````````````````````
-
-def run_notebook(notebook_path):
-    print(f"Running {notebook_path}\n")
-    with open(notebook_path) as f:
-        nb = nbformat.read(f, as_version=4)
-        ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
-        ep.preprocess(nb)
-    print(f"Executed {notebook_path}\n")
-
-    # Loop through cells and print outputs
-    for cell in nb.cells:
-        for output in cell.get('outputs', []):
-            if output.output_type == 'stream':
-                print(output.text)
-    loading_label.config(text="🔄 Building portfolio")
-    root.update_idletasks()
-    result = runpy.run_path(f"{os.getcwd()}/Untitled3.py")
-    loading_label.config(text="✅ Portfolio built")
 
 def runs():
     loading_label.config(text="🔄 Extracting Stocks")
@@ -185,15 +168,18 @@ def get_input():
     with open(f"{os.getcwd()}/number_of_stocks.pkl", "wb") as f:
         pickle.dump(number_of_stocks, f)
     stock_label.config(text="✅ Number of Stocks")
+    root.after(3000, lambda: stock_label.config(text="Number of Stocks"))
     
     with open(f"{os.getcwd()}/performanta.pkl", "wb") as f:
         pickle.dump(performanta, f)
     perf_label.config(text="✅ Performance")
+    root.after(3000, lambda: perf_label.config(text="Performance"))
     
     with open(f"{os.getcwd()}/suma.pkl", "wb") as f:
         pickle.dump(suma, f)
     suma_label.config(text="✅ Suma")
-    
+    root.after(3000, lambda: suma_label.config(text="Suma"))
+
     
 def start_tasks():
     csv_files = glob.glob(os.path.join(os.path.dirname(os.path.join(os.getcwd(), "q.pkl")), "*.csv"))
@@ -245,6 +231,7 @@ button2.pack(pady=5)
 
 
 root.mainloop()
+
 
 
 
