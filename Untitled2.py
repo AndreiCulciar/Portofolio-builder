@@ -14,6 +14,7 @@ with open(f"{os.getcwd()}/number_of_stocks.pkl", "rb") as f:
 df = pd.read_csv("shared_df.csv")
 
 first_price=pd.DataFrame()
+
 for i in range(number_of_stocks):
     ticker = df.iloc[i, 0].strip()
     url = (
